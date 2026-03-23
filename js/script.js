@@ -1,72 +1,84 @@
-let currentTab = "All";
+var currentTab = "All";
 
+function renderJobs(tab) {
+  if (!tab) {
+    tab = "All";
+  }
 
-function renderJobs(tab = "All") {
-  const container = document.getElementById("job-container");
+  var container = document.getElementById("job-container");
   container.innerHTML = "";
 
-  const filtered = tab === "All"
-    ? jobs
-    : jobs.filter(job => job.status === tab);
+  var filtered;
+
+  if (tab === "All") {
+    filtered = jobs;
+  } else {
+    filtered = jobs.filter(function(job) {
+      return job.status === tab;
+    });
+  }
 
   document.getElementById("job-count").innerText = filtered.length + " jobs";
 
-if (filtered.length === 0) {
-  container.innerHTML = `
-    <div class="text-center py-10">
-      <img 
-        src="./js/jobs.png" 
-        alt="No jobs" 
-        class="mx-auto w-32 mb-4"
-      />
-      <p class="text-xl font-bold">No jobs Available</p>
-      <p class="text-gray-400">Please select another tab</p>
-    </div>
-  `;
-  return;
-}
+  if (filtered.length === 0) {
+    container.innerHTML =
+      '<div class="text-center py-10">' +
+      '<img src="./js/jobs.png" alt="No jobs" class="mx-auto w-32 mb-4"/>' +
+      '<p class="text-xl font-bold">No jobs Available</p>' +
+      '<p class="text-gray-400">Please select another tab</p>' +
+      '</div>';
+    return;
+  }
 
-  filtered.forEach(job => {
-    container.innerHTML += `
-      <div class="border p-4 rounded-lg flex justify-between">
+  for (var i = 0; i < filtered.length; i++) {
+    var job = filtered[i];
 
-        <div>
-          <h3 class="font-bold">${job.company}</h3>
-          <p>${job.position}</p>
-          <p>${job.location} • ${job.type} • ${job.salary}</p>
+    container.innerHTML +=
+      '<div class="border p-4 rounded-lg flex justify-between">' +
 
-          <span class="badge mt-2">${job.status}</span>
+        '<div>' +
+          '<h3 class="font-bold">' + job.company + '</h3>' +
+          '<p>' + job.position + '</p>' +
+          '<p>' + job.location + ' • ' + job.type + ' • ' + job.salary + '</p>' +
 
-          <p class="text-sm mt-2">${job.description}</p>
+          '<span class="badge mt-2">' + job.status + '</span>' +
 
-          <div class="mt-3 flex gap-2">
-            <button class="btn btn-success btn-sm"
-              onclick="setStatus(${job.id}, 'Interview')">
-              Interview
-            </button>
+          '<p class="text-sm mt-2">' + job.description + '</p>' +
 
-            <button class="btn btn-error btn-sm"
-              onclick="setStatus(${job.id}, 'Rejected')">
-              Rejected
-            </button>
-          </div>
-        </div>
+          '<div class="mt-3 flex gap-2">' +
 
-        <button class="btn btn-sm"
-          onclick="deleteJob(${job.id})">
-          🗑
-        </button>
+            '<button class="btn btn-success btn-sm" onclick="setStatus(' + job.id + ', \'Interview\')">' +
+              'Interview' +
+            '</button>' +
 
-      </div>
-    `;
-  });
+            '<button class="btn btn-error btn-sm" onclick="setStatus(' + job.id + ', \'Rejected\')">' +
+              'Rejected' +
+            '</button>' +
+
+          '</div>' +
+        '</div>' +
+
+        '<button class="btn btn-sm" onclick="deleteJob(' + job.id + ')">' +
+          '🗑' +
+        '</button>' +
+
+      '</div>';
+  }
 
   updateDashboard();
 }
 
+
 // toggle
 function setStatus(id, status) {
-  const job = jobs.find(j => j.id === id);
+  var job = null;
+
+  for (var i = 0; i < jobs.length; i++) {
+    if (jobs[i].id === id) {
+      job = jobs[i];
+      break;
+    }
+  }
 
   if (job.status === status) {
     job.status = "All";
@@ -77,16 +89,27 @@ function setStatus(id, status) {
   renderJobs(currentTab);
 }
 
+
 // dashboard
 function updateDashboard() {
   document.getElementById("total").innerText = jobs.length;
 
-  const interview = jobs.filter(j => j.status === "Interview").length;
-  const rejected = jobs.filter(j => j.status === "Rejected").length;
+  var interview = 0;
+  var rejected = 0;
+
+  for (var i = 0; i < jobs.length; i++) {
+    if (jobs[i].status === "Interview") {
+      interview++;
+    }
+    if (jobs[i].status === "Rejected") {
+      rejected++;
+    }
+  }
 
   document.getElementById("interview-count").innerText = interview;
   document.getElementById("rejected-count").innerText = rejected;
 }
+
 
 // tabs
 function showTab(tab) {
@@ -94,13 +117,25 @@ function showTab(tab) {
   renderJobs(tab);
 }
 
+
 // delete
 function deleteJob(id) {
-  const index = jobs.findIndex(j => j.id === id);
-  jobs.splice(index, 1);
+  var index = -1;
+
+  for (var i = 0; i < jobs.length; i++) {
+    if (jobs[i].id === id) {
+      index = i;
+      break;
+    }
+  }
+
+  if (index !== -1) {
+    jobs.splice(index, 1);
+  }
 
   renderJobs(currentTab);
 }
+
 
 // init
 renderJobs();
